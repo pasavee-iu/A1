@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานการจัดส่งพัสดุสำเร็จ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .step {
+            margin-bottom: 30px;
+        }
+
+        .result {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .percentage {
+            color: green;
+        }
+
+        .statistics {
+            margin-top: 30px;
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .statistics h3 {
+            text-align: center;
+        }
+
+        .statistics p {
+            font-size: 1.1em;
+        }
+
+        .home-button, .start-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            padding: 12px;
+            margin: 5px 0;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .home-button {
+            background-color: #008CBA;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            input, select, button {
+                padding: 10px;
+            }
+
+            .result, .statistics {
+                font-size: 1em;
+            }
+
+            .home-button, .start-button {
+                padding: 10px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>รายงานการจัดส่งพัสดุสำเร็จ</h1>
+
+        <!-- Step 1: กรอกข้อมูลชื่อและงานทั้งหมด -->
+        <div id="step1" class="step">
+            <h2>ขั้นตอนที่ 1: กรอกข้อมูลชื่อและงานทั้งหมด</h2>
+            <label for="name">ชื่อผู้จัดส่ง:</label>
+            <input type="text" id="name" placeholder="กรอกชื่อผู้จัดส่ง">
+
+            <label for="totalTasks">จำนวนงานทั้งหมด:</label>
+            <input type="number" id="totalTasks" placeholder="กรอกจำนวนงานทั้งหมด">
+
+            <button onclick="nextStep()">ไปยังขั้นตอนที่ 2</button>
+        </div>
+
+        <!-- Step 2: กรอกข้อมูลสำเร็จ -->
+        <div id="step2" class="step" style="display: none;">
+            <h2>ขั้นตอนที่ 2: กรอกข้อมูลสำเร็จ</h2>
+            <label for="completedTasks">จำนวนงานที่สำเร็จ:</label>
+            <input type="number" id="completedTasks" placeholder="กรอกจำนวนงานที่สำเร็จ">
+
+            <button onclick="calculateSuccess()">คำนวณเปอร์เซ็นต์</button>
+        </div>
+
+        <!-- Result -->
+        <div id="result" class="result" style="display: none;">
+            <p>เปอร์เซ็นต์การสำเร็จของการจัดส่งพัสดุ: <span id="percentage" class="percentage"></span></p>
+        </div>
+
+        <!-- Statistics -->
+        <div id="statistics" class="statistics" style="display: none;">
+            <h3>ข้อมูลสถิติ</h3>
+            <p>ชื่อผู้จัดส่ง: <span id="statName"></span></p>
+            <p>จำนวนงานทั้งหมด: <span id="statTotalTasks"></span></p>
+            <p>จำนวนงานที่สำเร็จ: <span id="statCompletedTasks"></span></p>
+            <p>เปอร์เซ็นต์การสำเร็จ: <span id="statPercentage" class="percentage"></span></p>
+        </div>
+
+        <!-- Buttons -->
+        <div id="buttons" style="display: none;">
+            <button class="start-button" onclick="resetForm()">เริ่มคำนวณใหม่</button>
+            <button class="home-button" onclick="goHome()">โฮม</button>
+            <button class="home-button" onclick="showData()">ดึงข้อมูล</button>
+        </div>
+
+        <!-- Table to display saved data -->
+        <div id="dataTable" style="display: none;">
+            <h3>ข้อมูลที่บันทึก</h3>
+            <table id="dataDisplay">
+                <thead>
+                    <tr>
+                        <th>ชื่อผู้จัดส่ง</th>
+                        <th>จำนวนงานทั้งหมด</th>
+                        <th>จำนวนงานที่สำเร็จ</th>
+                        <th>เปอร์เซ็นต์การสำเร็จ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be displayed here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let name, totalTasks, completedTasks, successPercentage;
+        let dataStorage = [];
+
+        function nextStep() {
+            name = document.getElementById('name').value;
+            totalTasks = parseInt(document.getElementById('totalTasks').value);
+
+            // Validate input for name and total tasks
+            if (name === "" || isNaN(totalTasks) || totalTasks <= 0) {
+                alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+                return;
+            }
+
+            // Hide step 1 and show step 2
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+        }
+
+        function calculateSuccess() {
+            completedTasks = parseInt(document.getElementById('completedTasks').value);
+
+            // Validate input for completed tasks
+            if (isNaN(completedTasks) || completedTasks < 0 || completedTasks > totalTasks) {
+                alert("กรุณากรอกจำนวนงานที่สำเร็จให้ถูกต้อง");
+                return;
+            }
+
+            // Calculate percentage
+            successPercentage = (completedTasks / totalTasks) * 100;
+
+            // Save data to the storage array
+            dataStorage.push({
+                name: name,
+                totalTasks: totalTasks,
+                completedTasks: completedTasks,
+                successPercentage: successPercentage.toFixed(2)
+            });
+
+            // Show result and statistics
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('statistics').style.display = 'block';
+            document.getElementById('buttons').style.display = 'block';
+
+            // Fill statistics
+            document.getElementById('statName').innerText = name;
+            document.getElementById('statTotalTasks').innerText = totalTasks;
+            document.getElementById('statCompletedTasks').innerText = completedTasks;
+            document.getElementById('statPercentage').innerText = successPercentage.toFixed(2) + '%';
+
+            // Display success percentage
+            document.getElementById('percentage').innerText = successPercentage.toFixed(2) + '%';
+        }
+
+        function resetForm() {
+            // Reset all fields and show step 1
+            document.getElementById('name').value = '';
+            document.getElementById('totalTasks').value = '';
+            document.getElementById('completedTasks').value = '';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('statistics').style.display = 'none';
+            document.getElementById('buttons').style.display = 'none';
+            document.getElementById('step1').style.display = 'block';
+        }
+
+        function goHome() {
+            // Reset form and return to step 1
+            resetForm();
+            window.scrollTo(0, 0); // Scroll to top if necessary
+        }
+
+        function showData() {
+            const tableBody = document.getElementById('dataDisplay').getElementsByTagName('tbody')[0];
+
+            // Clear previous table data
+            tableBody.innerHTML = '';
+
+            // Populate table with stored data
+            dataStorage.forEach(item => {
+                let row = tableBody.insertRow();
+                row.insertCell(0).innerText = item.name;
+                row.insertCell(1).innerText = item.totalTasks;
+                row.insertCell(2).innerText = item.completedTasks;
+                row.insertCell(3).innerText = item.successPercentage + '%';
+            });
+
+            // Show the table with saved data
+            document.getElementById('dataTable').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
